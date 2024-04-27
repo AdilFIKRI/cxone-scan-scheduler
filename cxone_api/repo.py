@@ -1,3 +1,6 @@
+import asyncio
+
+
 class ProjectRepoConfig:
 
     def __init__(self, cxone_client, project_data):

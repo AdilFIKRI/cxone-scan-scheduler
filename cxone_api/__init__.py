@@ -442,5 +442,19 @@ class CxOneClient:
         url = urljoin(self.api_endpoint, f"scans/{scanid}/workflow")
         url = CxOneClient.__join_query_dict(url, kwargs)
         return await self.__exec_request(requests.get, url)
+    
+    async def get_project_tree(self, scanid):
+        url = urljoin(self.api_endpoint, f"repostore/project-tree/{scanid}")
+        return await self.__exec_request(requests.get, url)
 
+    async def get_repostore_project_tree(self, scanid):
+        url = urljoin(self.api_endpoint, f"repostore/project-tree/{scanid}")
+        return await self.__exec_request(requests.get, url)
 
+    async def get_repostore_folder(self, scanid, folder):
+        url = urljoin(self.api_endpoint, f"repostore/files/{scanid}/{urllib.parse.quote(folder)}")
+        return await self.__exec_request(requests.get, url)
+
+    async def get_repostore_file(self, scanid, filename):
+        url = urljoin(self.api_endpoint, f"repostore/files/{scanid}/{urllib.parse.quote(filename)}")
+        return await self.__exec_request(requests.get, url)
