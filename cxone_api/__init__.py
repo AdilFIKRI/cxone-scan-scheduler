@@ -365,6 +365,10 @@ class CxOneClient:
     async def get_project(self, projectid):
         url = urljoin(self.api_endpoint, f"projects/{projectid}")
         return await self.__exec_request(requests.get, url)
+    
+    async def get_project_last_scans(self, **kwargs):
+        url = urljoin(self.api_endpoint, f"projects/last-scan")
+        return await self.__exec_request(requests.get, url, json=kwargs)
 
     async def get_project_configuration(self, projectid):
         url = urljoin(self.api_endpoint, f"configuration/project?project-id={projectid}")

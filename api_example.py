@@ -7,8 +7,13 @@ async def main():
     cxone_client = CxOneClient.create_with_oauth(os.environ["OAUTH_CLIENTID"], os.environ["OAUTH_CLIENTSECRET"], "CxOneAPIExample",
         AuthUS(os.environ["TENANT"]), ApiUS())
     
-    async for scan in paged_api(cxone_client.get_scans, "scans", statuses=['Completed']):
-        print(f"Scan Id: {scan['id']} ProjectId: {scan['projectId']} Branch: {scan['branch']}")
+    #async for scan in paged_api(cxone_client.get_scans, "scans", statuses=['Completed']):
+    #    print(f"Scan Id: {scan['id']} ProjectId: {scan['projectId']} Branch: {scan['branch']}")
+    #    pass
+
+    
+    for scan in cxone_client.get_project_last_scans(limit=20):
+        print(f"Scan Id: {scan['id']}")
         pass
 
 asyncio.run(main())
