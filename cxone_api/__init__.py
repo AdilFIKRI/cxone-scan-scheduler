@@ -368,7 +368,8 @@ class CxOneClient:
     
     async def get_project_last_scans(self, **kwargs):
         url = urljoin(self.api_endpoint, f"projects/last-scan")
-        return await self.__exec_request(requests.get, url, json=kwargs)
+        url = CxOneClient.__join_query_dict(url, kwargs)
+        return await self.__exec_request(requests.get, url)
 
     async def get_project_configuration(self, projectid):
         url = urljoin(self.api_endpoint, f"configuration/project?project-id={projectid}")
@@ -383,7 +384,11 @@ class CxOneClient:
         url = urljoin(self.api_endpoint, "scans")
         url = CxOneClient.__join_query_dict(url, kwargs)
         return await self.__exec_request(requests.get, url)
-    
+
+    async def get_scan(self, scanid):
+        url = urljoin(self.api_endpoint, f"scans/{scanid}")
+        return await self.__exec_request(requests.get, url)
+
     @dashargs("scan-ids")
     async def get_sast_scans_metadata(self, **kwargs):
         url = urljoin(self.api_endpoint, "sast-metadata")

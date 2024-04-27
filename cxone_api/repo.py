@@ -32,3 +32,7 @@ class ProjectRepoConfig:
     async def repo_url(self):
         url = await self.__get_logical_repo_url()
         return url if len(url) > 0 else None
+
+
+async def download_files_to_directory(cxone_client, scanid, dest_directory):
+    pass
