@@ -50,7 +50,9 @@ class Repostore:
                     if fetched_file_resp.ok:
                         dest.write(fetched_file_resp.text)
                     else:
-                        raise Exception(f"Could not load file {entry['fullPath']} from scan {scanid}")
+                        pass
+                        # it just won't download the file in this case...
+                        # raise Exception(f"Could not load file {entry['fullPath']} from scan {scanid}")
         return True
 
             

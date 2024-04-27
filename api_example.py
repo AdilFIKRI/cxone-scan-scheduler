@@ -32,6 +32,9 @@ async def main():
                 continue
 
             project_branches = project_branches_result.json()
+            
+            if project_branches is None:
+                continue
 
             for branch in project_branches:
                 last_scan_response = await cxone_client.get_project_last_scans(branch=branch, limit=1, project_ids=[project['id']])
