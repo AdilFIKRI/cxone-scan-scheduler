@@ -35,4 +35,9 @@ class ProjectRepoConfig:
 
 
 async def download_files_to_directory(cxone_client, scanid, dest_directory):
-    pass
+    tree_response = await cxone_client.get_project_tree(scanid)
+    if tree_response.ok:
+        tree = tree_response.json()
+        pass
+    else:
+        raise Exception(f"Could not get project tree for scan {scanid}")

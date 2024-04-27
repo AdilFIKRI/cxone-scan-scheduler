@@ -5,7 +5,7 @@ import os, asyncio
 
 async def main():
     cxone_client = CxOneClient.create_with_oauth(os.environ["OAUTH_CLIENTID"], os.environ["OAUTH_CLIENTSECRET"], "CxOneAPIExample",
-        AuthUS(os.environ["TENANT"]), ApiUS())
+        AuthUS(os.environ["TENANT"]), ApiUS(), ssl_verify=False, proxy = {"http" : "http://localhost:8080", "https" : "http://localhost:8080"})
 
     # print ((await cxone_client.get_repostore_project_tree("153a99d4-686e-4fe9-970d-c68b5d0f83c7")).json())   
 
@@ -18,7 +18,7 @@ async def main():
 
     # print((await cxone_client.get_scan("153a99d4-686e-4fe9-970d-c68b5d0f83c7")).json())
 
-    # await download_files_to_directory('153a99d4-686e-4fe9-970d-c68b5d0f83c7', 'test')
+    await download_files_to_directory(cxone_client, '153a99d4-686e-4fe9-970d-c68b5d0f83c7', 'test')
 
     last_scan_dict = (await cxone_client.get_project_last_scans(limit=20)).json()
 
