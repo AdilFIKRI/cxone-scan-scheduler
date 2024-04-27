@@ -366,6 +366,7 @@ class CxOneClient:
         url = urljoin(self.api_endpoint, f"projects/{projectid}")
         return await self.__exec_request(requests.get, url)
     
+    @dashargs("application-id", "project-ids", "scan-status")
     async def get_project_last_scans(self, **kwargs):
         url = urljoin(self.api_endpoint, f"projects/last-scan")
         url = CxOneClient.__join_query_dict(url, kwargs)
