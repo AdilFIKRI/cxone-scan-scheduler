@@ -1,4 +1,5 @@
-import asyncio
+import asyncio, os
+from pathlib import Path
 
 
 class ProjectRepoConfig:
@@ -33,11 +34,31 @@ class ProjectRepoConfig:
         url = await self.__get_logical_repo_url()
         return url if len(url) > 0 else None
 
+class Repostore:
 
-async def download_files_to_directory(cxone_client, scanid, dest_directory):
-    tree_response = await cxone_client.get_project_tree(scanid)
-    if tree_response.ok:
-        tree = tree_response.json()
-        pass
-    else:
-        raise Exception(f"Could not get project tree for scan {scanid}")
+    @staticmethod
+    async def __download_files_to_directory_from_tree (cxone_client, scanid, tree, root_directory):
+        real_root = os.path.realpath(root_directory)
+        os.makedirs(Path(real_root) / tree['fullPath'], exist_ok=True)
+        
+        for entry in tree['files']:
+            if bool(entry['isDir']):
+                await Repostore.__download_files_to_directory_from_tree(cxone_client, scanid, entry, real_root)
+            else:
+                with open(Path(real_root) / Path(entry['fullPath']), "w") as dest:
+                    fetched_file_resp = await cxone_client.get_repostore_file(scanid, entry['fullPath'])
+                    if fetched_file_resp.ok:
+                        dest.write(fetched_file_resp.text)
+                    else:
+                        raise Exception(f"Could not load file {entry['fullPath']} from scan {scanid}")
+        return True
+
+            
+
+    @staticmethod    
+    async def download_files_to_directory(cxone_client, scanid, dest_directory):
+        tree_response = await cxone_client.get_project_tree(scanid)
+        if tree_response.ok:
+            return await Repostore.__download_files_to_directory_from_tree(cxone_client, scanid, tree_response.json(), dest_directory)
+        else:
+            return False

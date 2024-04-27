@@ -354,6 +354,13 @@ class CxOneClient:
         url = CxOneClient.__join_query_dict(url, kwargs)
         return await self.__exec_request(requests.get, url)
 
+    @dashargs("project-id")
+    async def get_branches(self, **kwargs):
+        url = urljoin(self.api_endpoint, "projects/branches")
+        url = CxOneClient.__join_query_dict(url, kwargs)
+        return await self.__exec_request(requests.get, url)
+
+
     async def create_project(self, **kwargs):
         url = urljoin(self.api_endpoint, f"projects")
         return await self.__exec_request(requests.post, url, json=kwargs)
