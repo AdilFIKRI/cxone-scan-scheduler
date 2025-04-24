@@ -426,3 +426,57 @@ there may be cases where using group membership is a simpler method of assigning
 scan schedules.
 
 
+## 🧭 Workflow Overview (Mermaid Diagram)
+
+<pre>
+```mermaid
+flowchart TD
+
+%% === MONITORING JOURNALIER ===
+subgraph MONITOR ["📡 Monitoring journalier (monitor-runner-release.yml)"]
+    M1("🕖 CRON tous les jours à 07:00 UTC")
+    M2("🔍 Vérifie 'actions/runner'\net Dockerfile")
+    M3("✅ Si nouvelle version")
+    M4("✏️ Commit Dockerfile\npar orchestrator-pic")
+    M5("📨 Notif Chat PIC avec version")
+
+    M1 --> M2 --> M3 --> M4 --> M5
+    M4 -->|Déclenche push sur main| RC0
+end
+
+%% === BUILD RC ===
+subgraph BUILD_RC ["🏗️ Build RC & Préprod (push sur main)"]
+    RC0("🟢 Déclenchement : push sur main")
+    RC1("🏷️ Calcul + création tag RC")
+    RC2("🐳 Build + push image Docker")
+    RC3("🚀 Déploiement Non-Prod (runner & large)")
+    RC4("📅 Vérifie si changement déjà existant")
+    RC5("📋 Création d’un changement standard")
+    RC6("🔐 Enregistre CHANGE_ID via GitHub API")
+    RC7("📣 Notification finale (Chat + tag + ID)")
+
+    RC0 --> RC1 --> RC2 --> RC3 --> RC4 --> RC5 --> RC6 --> RC7
+    RC5 -->|CHANGE_ID dispo| PLAN0
+end
+
+%% === PLANIFICATION PRODUCTION ===
+subgraph PLANIF_PROD ["🗓️ Déploiement en production planifié (schedule_workflow.yml)"]
+    PLAN0("🟢 CRON chaque mardi à 08:00 UTC")
+    PLAN1("🔐 Si CHANGE_ID ≠ false")
+    PLAN2("📢 Comm de démarrage")
+    PLAN3("⬆️ Appel promote.yml")
+    PLAN4("🧪 Appel test_runner.yml")
+    PLAN5("📢 Statut final (succès / échec)")
+    PLAN6("✅ Clôture du changement")
+    PLAN7("♻️ Reset des variables")
+
+    PLAN0 --> PLAN1 --> PLAN2 --> PLAN3 --> PLAN4 --> PLAN5 --> PLAN6 --> PLAN7
+end
+
+%% STYLES
+style MONITOR fill:#fff9e6,stroke:#ffcc00,stroke-width:2px
+style BUILD_RC fill:#e6f7ff,stroke:#1da1f2,stroke-width:2px
+style PLANIF_PROD fill:#eaffea,stroke:#28a745,stroke-width:2px
+
+
+
