@@ -428,7 +428,7 @@ scan schedules.
 
 ## 🧭 Workflow Overview (Mermaid Diagram)
 
-<pre>
+
 ```mermaid
 flowchart TD
 
@@ -451,7 +451,7 @@ subgraph BUILD_RC ["🏗️ Build RC & Préprod (push sur main)"]
     RC2("🐳 Build + push image Docker")
     RC3("🚀 Déploiement Non-Prod (runner & large)")
     RC4("📅 Vérifie si changement déjà existant")
-    RC5("📋 Création d’un changement standard")
+    RC5("📋 Création d'un changement standard")
     RC6("🔐 Enregistre CHANGE_ID via GitHub API")
     RC7("📣 Notification finale (Chat + tag + ID)")
 
