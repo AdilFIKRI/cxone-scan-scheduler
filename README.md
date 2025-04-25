@@ -426,10 +426,6 @@ there may be cases where using group membership is a simpler method of assigning
 scan schedules.
 ```mermaid
 
----
-config:
-  layout: fixed
----
 flowchart TD
  subgraph MONITOR["📡 Daily Monitoring (monitor-runner-release.yml)"]
         M1["🕖 CRON every day at 07:00 UTC"]
