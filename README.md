@@ -427,96 +427,98 @@ scan schedules.
 ```mermaid
 
 flowchart TD
- subgraph MONITOR["📡 Daily Monitoring (monitor-runner-release.yml)"]
-        M1["🕖 CRON every day at 07:00 UTC"]
-        M2@{ label: "🔍 Check 'actions/runner'and Dockerfile" }
-        M3{{"✅ If new GitHub runner version"}}
-        M4["✏️ Commit Dockerfile by orchestrator-pic"]
-        M5["📨 PIC Chat Notification with new runner version"]
-        RC0["🟢 Trigger: push on main"]
-  end
- subgraph BUILD_RC["🚀 (Main) Create new RC and Build"]
-        RC1["🏷️ Calculate + create RC tag"]
-        RC2["🐳 Build + push Docker image"]
-        RC3["🚀 Deploy Non-Prod"]
-        RC4{{"📅 Check if change already exists"}}
-        RC5["📋 Create standard change"]
-        RC6["🔐 Store CHANGE_ID in vars via GitHub API"]
-        RC7["📣 Final notification to IDP channel (Chat + tag + ID)"]
-        PLAN0["🟢 CRON every Tuesday at 08:00 UTC"]
-  end
- subgraph ARGO_NPROD["⎈ ArgoCD Auto-Sync NonProd"]
-        A1["✏️ Push manifests/actions-runners/nprod\nin ari-dit-cicd-pic"]
-        A2["⎈ ArgoCD deployment"]
-  end
- subgraph PLANIF_PROD["🗓️ Scheduled Production Deployment (schedule_workflow.yml)"]
-        PLAN1{{"🔐 If CHANGE_ID ≠ false"}}
-        PLAN2["📢 Start communication"]
-        PLAN3["⬆️ Call promote.yml"]
-        PLAN4["🧪 Call test_runner.yml"]
-        PLAN5["📢 Final status (success / failure)"]
-        PLAN6["✅ Close change"]
-        PLAN7["♻️ Reset variables"]
-  end
- subgraph PROMOTE["⬆️ Promote Workflow (promote.yml)"]
-        P1["🏷️ Create new release version"]
-        P2["🔄 Tag remote images"]
-        P3["🚀 Deploy to Non-Prod"]
-        P4["🚀 Deploy to Non-Prod Large"]
-        P5["🚀 Deploy to Prod"]
-        P6["🚀 Deploy to Prod Large"]
-        P7{{"❌ On Failure"}}
-        P8["🧹 Cleanup prerelease tags"]
-  end
- subgraph ARGO_PROD["⎈ ArgoCD Auto-Sync Prod"]
-        AP1["✏️ Push manifests/actions-runners/prod\nin ari-dit-cicd-pic"]
-        AP2["⎈ ArgoCD deployment"]
-  end
-    M1 --> M2
-    M2 --> M3
-    M3 --> M4
-    M4 --> M5
-    M4 -- Triggers push on main --> RC0
-    RC0 --> RC1
-    RC1 --> RC2
-    RC2 --> RC3
-    RC3 --> A1
-    RC4 --> RC5
-    RC5 --> RC6
-    RC6 --> RC7
-    RC5 -- CHANGE_ID available --> PLAN0
-    A1 --> A2
-    PLAN0 --> PLAN1
-    PLAN1 --> PLAN2
-    PLAN2 --> PLAN3
-    PLAN3 --> PLAN4 & P1
-    PLAN4 --> PLAN5
-    PLAN5 --> PLAN6
-    PLAN6 --> PLAN7
-    P1 --> P2
-    P2 --> P3 & P7
-    P3 --> P4
-    P4 --> P5
-    P5 --> P6 & AP1
-    P6 --> P8 & AP1
-    P7 -- Revert --> P8
-    AP1 --> AP2
-    n1["This is sample label"]
-    n2["This is sample label"]
-    n3["This is sample label"]
-    M2@{ shape: rect}
-    n1@{ img: "https://argo-cd.readthedocs.io/en/stable/assets/logo.png", h: 200, w: 200, pos: "b"}
-    n2@{ img: "https://argo-cd.readthedocs.io/en/stable/assets/logo.png", h: 200, w: 200, pos: "b"}
-    n3@{ img: "https://github.githubassets.com/images/modules/site/features/actions-icon-actions.svg", h: 200, w: 200, pos: "b"}
-    style MONITOR fill:#fff9e6,stroke:#ffcc00,stroke-width:2px
-    style BUILD_RC fill:#e6f7ff,stroke:#1da1f2,stroke-width:2px
-    style PLANIF_PROD fill:#eaffea,stroke:#28a745,stroke-width:2px
-    style PROMOTE fill:#ffe6e6,stroke:#dc3545,stroke-width:2px
-    style ARGO_NPROD fill:#e6e6ff,stroke:#6666ff,stroke-width:2px
-    style ARGO_PROD fill:#e6e6ff,stroke:#6666ff,stroke-width:2px
-    click RC6 "https://github.com/auchan-retail-international/ari-dit-cicd-github-internal-runner-cicd/settings/variables/actions"
-    click A1 "https://github.com/auchan-retail-international/ari-dit-cicd-pic/tree/main/manifests/actions-runners/nprod"
-    click A2 "https://gitops-gate.ari.internal.auchan.com/applications/actions-runners-nprod?resource="
-    click P5 "https://github.com/auchan-retail-international/ari-dit-cicd-pic/tree/main/manifests/actions-runners/prod"
-    click AP2 "https://gitops-gate.ari.internal.auchan.com/applications/argocd/actions-runners?view=tree&resource="
+
+subgraph MONITOR["📡 Daily Monitoring (monitor-runner-release.yml)"]
+    M1["🕖 CRON every day at 07:00 UTC"]
+    M2["🔍 Check 'actions/runner'and Dockerfile"]
+    M3{{"✅ If new GitHub runner version"}}
+    M4["✏️ Commit Dockerfile by orchestrator-pic"]
+    M5["📨 PIC Chat Notification with new runner version"]
+    RC0["🟢 Trigger: push on main"]
+end
+
+subgraph BUILD_RC["🚀 (Main) Create new RC and Build"]
+    RC1["🏷️ Calculate + create RC tag"]
+    RC2["🐳 Build + push Docker image"]
+    RC3["🚀 Deploy Non-Prod"]
+    RC4{{"📅 Check if change already exists"}}
+    RC5["📋 Create standard change"]
+    RC6["🔐 Store CHANGE_ID in vars via GitHub API"]
+    RC7["📣 Final notification to IDP channel (Chat + tag + ID)"]
+    PLAN0["🟢 CRON every Tuesday at 08:00 UTC"]
+end
+
+subgraph ARGO_NPROD["⎈ ArgoCD Auto-Sync NonProd"]
+    A1["✏️ Push manifests/actions-runners/nprod\nin ari-dit-cicd-pic"]
+    A2["⎈ ArgoCD deployment"]
+end
+
+subgraph PLANIF_PROD["🗓️ Scheduled Production Deployment (schedule_workflow.yml)"]
+    PLAN1{{"🔐 If CHANGE_ID ≠ false"}}
+    PLAN2["📢 Start communication"]
+    PLAN3["⬆️ Call promote.yml"]
+    PLAN4["🧪 Call test_runner.yml"]
+    PLAN5["📢 Final status (success / failure)"]
+    PLAN6["✅ Close change"]
+    PLAN7["♻️ Reset variables"]
+end
+
+subgraph PROMOTE["⬆️ Promote Workflow (promote.yml)"]
+    P1["🏷️ Create new release version"]
+    P2["🔄 Tag remote images"]
+    P3["🚀 Deploy to Non-Prod"]
+    P4["🚀 Deploy to Non-Prod Large"]
+    P5["🚀 Deploy to Prod"]
+    P6["🚀 Deploy to Prod Large"]
+    P7{{"❌ On Failure"}}
+    P8["🧹 Cleanup prerelease tags"]
+end
+
+subgraph ARGO_PROD["⎈ ArgoCD Auto-Sync Prod"]
+    AP1["✏️ Push manifests/actions-runners/prod\nin ari-dit-cicd-pic"]
+    AP2["⎈ ArgoCD deployment"]
+end
+
+M1 --> M2
+M2 --> M3
+M3 --> M4
+M4 --> M5
+M4 -- Triggers push on main --> RC0
+RC0 --> RC1
+RC1 --> RC2
+RC2 --> RC3
+RC3 --> A1
+RC4 --> RC5
+RC5 --> RC6
+RC6 --> RC7
+RC5 -- CHANGE_ID available --> PLAN0
+A1 --> A2
+PLAN0 --> PLAN1
+PLAN1 --> PLAN2
+PLAN2 --> PLAN3
+PLAN3 --> PLAN4 & P1
+PLAN4 --> PLAN5
+PLAN5 --> PLAN6
+PLAN6 --> PLAN7
+P1 --> P2
+P2 --> P3 & P7
+P3 --> P4
+P4 --> P5
+P5 --> P6 & AP1
+P6 --> P8 & AP1
+P7 -- Revert --> P8
+AP1 --> AP2
+
+style MONITOR fill:#fff9e6,stroke:#ffcc00,stroke-width:2px
+style BUILD_RC fill:#e6f7ff,stroke:#1da1f2,stroke-width:2px
+style PLANIF_PROD fill:#eaffea,stroke:#28a745,stroke-width:2px
+style PROMOTE fill:#ffe6e6,stroke:#dc3545,stroke-width:2px
+style ARGO_NPROD fill:#e6e6ff,stroke:#6666ff,stroke-width:2px
+style ARGO_PROD fill:#e6e6ff,stroke:#6666ff,stroke-width:2px
+
+click RC6 "https://github.com/auchan-retail-international/ari-dit-cicd-github-internal-runner-cicd/settings/variables/actions"
+click A1 "https://github.com/auchan-retail-international/ari-dit-cicd-pic/tree/main/manifests/actions-runners/nprod"
+click A2 "https://gitops-gate.ari.internal.auchan.com/applications/actions-runners-nprod?resource="
+click P5 "https://github.com/auchan-retail-international/ari-dit-cicd-pic/tree/main/manifests/actions-runners/prod"
+click AP2 "https://gitops-gate.ari.internal.auchan.com/applications/argocd/actions-runners?view=tree&resource="
 ```
