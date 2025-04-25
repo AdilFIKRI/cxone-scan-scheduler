@@ -424,4 +424,75 @@ This method is primarily useful to automate the scheduling of scans for projects
 an onboarding process.  While it is possible to schedule scans with individual project tags,
 there may be cases where using group membership is a simpler method of assigning
 scan schedules.
+```mermaid
 
+flowchart TD
+
+%% === DAILY MONITORING ===
+subgraph MONITOR ["📡 Daily Monitoring (monitor-runner-release.yml)"]
+    M1["🕖 CRON every day at 07:00 UTC"]
+    M2["🔍 Check 'actions/runner'and Dockerfile"]
+    M3{{"✅ If new GitHub runner version"}}
+    M4["✏️ Commit Dockerfile by orchestrator-pic"]
+    M5["📨 PIC Chat Notification with new runner version"]
+
+    M1 --> M2 --> M3 --> M4 --> M5
+    M4 -->|Triggers push on main| RC0
+end
+
+%% === BUILD RC ===
+subgraph BUILD_RC ["🚀 (Main) Create new RC and Build"]
+    RC0["🟢 Trigger: push on main"]
+    RC1["🏷️ Calculate + create RC tag"]
+    RC2["🐳 Build + push Docker image"]
+    RC3["🚀 Deploy Non-Prod (runner & large)"]
+    RC3_1["✏️ Orchestrator PIC push to\nmanifests/actions-runners/nprod\nin ari-dit-cicd-pic"]
+    RC3_2["⎈ ArgoCD auto-sync deployment"]
+    RC4{{"📅 Check if change already exists"}}
+    RC5["📋 Create standard change"]
+    RC6["🔐 Store CHANGE_ID in vars via GitHub API"]
+    RC7["📣 Final notification to IDP channel (Chat + tag + ID)"]
+
+    RC0 --> RC1 --> RC2 --> RC3 --> RC3_1 --> RC3_2 --> RC4 --> RC5 --> RC6 --> RC7
+    RC5 -->|CHANGE_ID available| PLAN0
+end
+
+%% === PRODUCTION SCHEDULING ===
+subgraph PLANIF_PROD ["🗓️ Scheduled Production Deployment (schedule_workflow.yml)"]
+    PLAN0["🟢 CRON every Tuesday at 08:00 UTC"]
+    PLAN1{{"🔐 If CHANGE_ID ≠ false"}}
+    PLAN2["📢 Start communication"]
+    PLAN3["⬆️ Call promote.yml"]
+    PLAN4["🧪 Call test_runner.yml"]
+    PLAN5["📢 Final status (success / failure)"]
+    PLAN6["✅ Close change"]
+    PLAN7["♻️ Reset variables"]
+
+    PLAN0 --> PLAN1 --> PLAN2 --> PLAN3 --> PLAN4 --> PLAN5 --> PLAN6 --> PLAN7
+end
+
+%% === PROMOTE WORKFLOW ===
+subgraph PROMOTE ["⬆️ Promote Workflow (promote.yml)"]
+    P1["🏷️ Create new release version"]
+    P2["🔄 Tag remote images"]
+    P3["🚀 Deploy to Non-Prod"]
+    P4["🚀 Deploy to Non-Prod Large"]
+    P5["🚀 Deploy to Prod"]
+    P6["🚀 Deploy to Prod Large"]
+    P7{{"❌ On Failure"}}
+    P8["🧹 Cleanup prerelease tags"]
+
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P8
+    P2 --> P7
+    P7 -->|Revert| P8
+end
+
+PLAN3 --> P1
+
+%% STYLES
+style MONITOR fill:#fff9e6,stroke:#ffcc00,stroke-width:2px
+style BUILD_RC fill:#e6f7ff,stroke:#1da1f2,stroke-width:2px
+style PLANIF_PROD fill:#eaffea,stroke:#28a745,stroke-width:2px
+style PROMOTE fill:#ffe6e6,stroke:#dc3545,stroke-width:2px
+
+```
