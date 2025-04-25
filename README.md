@@ -445,15 +445,13 @@ subgraph BUILD_RC ["🚀 (Main) Create new RC and Build"]
     RC0["🟢 Trigger: push on main"]
     RC1["🏷️ Calculate + create RC tag"]
     RC2["🐳 Build + push Docker image"]
-    RC3["🚀 Deploy Non-Prod (runner & large)"]
-    RC3_1["✏️ Orchestrator PIC push to\nmanifests/actions-runners/nprod\nin ari-dit-cicd-pic"]
-    RC3_2["⎈ ArgoCD auto-sync deployment"]
+    RC3["🚀 Deploy Non-Prod\n✏️ Push manifests/actions-runners/nprod\n⎈ ArgoCD deployment"]
     RC4{{"📅 Check if change already exists"}}
     RC5["📋 Create standard change"]
     RC6["🔐 Store CHANGE_ID in vars via GitHub API"]
     RC7["📣 Final notification to IDP channel (Chat + tag + ID)"]
 
-    RC0 --> RC1 --> RC2 --> RC3 --> RC3_1 --> RC3_2 --> RC4 --> RC5 --> RC6 --> RC7
+    RC0 --> RC1 --> RC2 --> RC3 --> RC4 --> RC5 --> RC6 --> RC7
     RC5 -->|CHANGE_ID available| PLAN0
 end
 
